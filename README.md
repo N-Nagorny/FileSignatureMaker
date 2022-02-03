@@ -6,21 +6,15 @@ When one's trying to check integrity of many large files with MD5 or almost any 
 
 ## Build procedure
 
-There are `Makefile` for building the program for Linux and `Signature.vcxproj` for Windows.
+The project uses [CMake](https://cmake.org/) as a build tool and proposes two ways of acquiring dependencies:
+* [Conan](https://conan.io/)
+* [nix](https://nixos.org/) (only for Linux)
 
-The program uses `OpenSSL` and `Boost.Interprocess` as dependencies.
+The dependencies are `OpenSSL` and `Boost.Interprocess`.
 
 ### Linux
 
-I've been used `gcc 10.3.0`, `OpenSSL 1.1.1l` and `boost 1.69.0` for building it.
-
-The best way to reproduce my environment fast is to install [nix](https://nixos.org/) and execute `nix-shell` in the root directory.
-
-### Windows
-
-I've been used `msbuild` from `Visual Studio 2019`, `OpenSSL 1.1.1l` and `boost` for building it.
-
-Please make sure that you updated values for `WindowsTargetPlatformVersion`, `IncludePath` and `AdditionalLibraryDirectories` for your environment.
+The best way to reproduce my environment fast is to install [nix](https://nixos.org/) and execute `nix-shell` in the root directory. In this case it's recommended to set `USE_CONAN` CMake configuration option to `OFF`.
 
 ## Testing procedure
 
