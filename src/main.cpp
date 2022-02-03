@@ -1,10 +1,13 @@
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <tuple>
 
+#include <openssl/md5.h>
+
+#include "per_block_file_processor.hpp"
 #include "profile.hpp"
-#include "signature_maker.hpp"
 
 #define DEFAULT_BLOCK_SIZE_MB 1
 
@@ -39,13 +42,26 @@ std::tuple<const char*, const char*, long int> get_cmd_arguments(int argc, char*
   return std::make_tuple(argv[1], argv[2], block_size_mb);
 }
 
+// Example single_block_processor to perform MD5 hashing
+single_block_processor make_single_block_processor_md5() {
+  return [](const unsigned char* const block_ptr, std::size_t size) -> std::vector<unsigned char> {
+    if (block_ptr == nullptr) {
+      throw std::logic_error("block_ptr is nullptr");
+    }
+
+    std::vector<unsigned char> result(MD5_DIGEST_LENGTH);
+    MD5(block_ptr, size, result.data());
+    return result;
+  };
+}
+
 int main(int argc, char** argv) {
   try {
     auto [input_path, output_path, block_size_mb] = get_cmd_arguments(argc, argv);
     {
       LOG_DURATION("making a signature");
-      SignatureMaker sm(input_path, block_size_mb);
-      sm.ProcessFile(output_path);
+      PerBlockFileProcessor signature_maker(input_path, block_size_mb);
+      signature_maker.ProcessFile(output_path, make_single_block_processor_md5());
     }
   } catch (const std::invalid_argument& e) {
     std::cout << e.what() << std::endl << std::endl;

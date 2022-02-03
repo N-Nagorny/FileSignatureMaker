@@ -4,6 +4,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <mutex>
 
@@ -14,6 +15,8 @@
 using boost::interprocess::file_mapping;
 using boost::interprocess::read_only;
 using boost::interprocess::mapped_region;
+
+typedef std::function<std::vector<unsigned char>(const unsigned char* const block_ptr, std::size_t size)> single_block_processor;
 
 // This class reads a file block by block,
 // passes each block along with a processing function
@@ -48,16 +51,11 @@ public:
     trailing_block_exists_ = input_region_.get_size() % block_size_bytes_;
   }
 
-  // Calls ProcessBlock() for each block of the input file
-  // and write the result to output_path even if the file exists
-  void ProcessFile(const char* output_path);
+  // Calls single_block_processor for each block of the input file
+  // and writes the result to output_path even if the file exists
+  void ProcessFile(const char* output_path, single_block_processor process_block);
 
   virtual ~PerBlockFileProcessor() {};
-
-protected:
-  // I would replace it with a lambda
-  // which caller passes to ProcessFile()
-  virtual std::vector<unsigned char> ProcessBlock(const unsigned char* const start_ptr, std::size_t size) const = 0;
 
 private:
   PerBlockFileProcessor(const PerBlockFileProcessor&) =

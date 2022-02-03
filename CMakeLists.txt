@@ -19,7 +19,6 @@ include_directories(src)
 set(SOURCES
     src/main.cpp
     src/per_block_file_processor.cpp
-    src/signature_maker.cpp
     src/thread_pool.cpp
 )
 
