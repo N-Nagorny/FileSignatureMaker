@@ -12,6 +12,22 @@ The project uses [CMake](https://cmake.org/) as a build tool and proposes two wa
 
 The dependencies are `OpenSSL` and `Boost.Interprocess`.
 
+Here is an example of build procedure for Windows:
+```sh
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+```
+
+For Linux:
+```sh
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE:STRING="Release"
+cmake --build .
+```
+
 ### Linux
 
 The best way to reproduce my environment fast is to install [nix](https://nixos.org/) and execute `nix-shell` in the root directory. In this case it's recommended to set `USE_CONAN` CMake configuration option to `OFF`.
