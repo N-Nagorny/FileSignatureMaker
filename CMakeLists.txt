@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(src)
 
 set(SOURCES
+    src/block_storage.cpp
     src/main.cpp
     src/per_block_file_processor.cpp
     src/thread_pool.cpp
