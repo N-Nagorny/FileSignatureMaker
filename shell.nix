@@ -4,6 +4,6 @@ with import <nixpkgs> {};
 
 stdenv.mkDerivation {
   name = "FileSignatureMaker";
-  buildInputs = [ boost openssl ];
+  buildInputs = [ openssl ];
   nativeBuildInputs = [ cmake pkg-config valgrind ];
 }
