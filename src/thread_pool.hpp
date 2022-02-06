@@ -18,13 +18,13 @@ public:
   // max_jobs can be larger than num_threads, when light jobs, and equal to, when heavy
   ThreadPool(std::size_t num_threads, std::size_t max_jobs)
     : shutdown_(false)
+    , num_threads_(num_threads)
     , max_jobs_(max_jobs)
   {
-    threads_.resize(num_threads);
-    for (std::size_t i = 0; i < num_threads; ++i)
-    {
-      threads_[i] = std::thread(&ThreadPool::WorkerThread, this, i);
+    if (num_threads == 0) {
+      throw std::logic_error("ThreadPool can't have zero threads");
     }
+    Startup();
   }
 
   virtual ~ThreadPool() {
@@ -49,7 +49,8 @@ public:
     return future;
   }
 
-  // Forces ThreadPool to complete jobs ASAP
+  void Startup();
+  // Forces ThreadPool to complete jobs ASAP and destructs threads
   void Shutdown();
 
 private:
@@ -86,6 +87,7 @@ private:
   mutable std::condition_variable queue_is_not_full_;
   bool shutdown_;
   std::size_t max_jobs_;
+  std::size_t num_threads_;
 
   void WorkerThread(std::size_t number);
 };

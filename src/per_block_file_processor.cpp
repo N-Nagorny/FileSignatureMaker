@@ -21,7 +21,9 @@ void PerBlockFileProcessor::ProcessFile(const std::string& output_path, single_b
     WriteResult(output_file);
   });
 
-  // This loop reads blocks one by one from a memory mapped input file
+  thread_pool_.Startup();
+
+  // This loop reads blocks one by one from an input file stream
   // and makes a future for each block
   for (std::size_t i = 0; i < complete_blocks_; ++i) {
     const unsigned char* block_ptr = nullptr;

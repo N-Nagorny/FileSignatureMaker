@@ -1,5 +1,22 @@
 #include "thread_pool.hpp"
 
+void ThreadPool::Startup() {
+  if (!threads_.empty()) {
+    return;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    shutdown_ = false;
+  }
+
+  threads_.resize(num_threads_);
+  for (std::size_t i = 0; i < num_threads_; ++i)
+  {
+    threads_[i] = std::thread(&ThreadPool::WorkerThread, this, i);
+  }
+}
+
 void ThreadPool::Shutdown() {
   if (threads_.empty()) {
     return;
