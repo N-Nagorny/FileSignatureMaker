@@ -38,7 +38,7 @@ void ThreadPool::Shutdown() {
 
 void ThreadPool::WorkerThread(std::size_t number) {
   while (true) {
-    std::unique_ptr<BaseJob> job = nullptr;
+    std::unique_ptr<IJob> job = nullptr;
     {
       std::unique_lock<std::mutex> lock(mutex_);
 

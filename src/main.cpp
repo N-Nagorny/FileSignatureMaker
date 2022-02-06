@@ -1,14 +1,18 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <tuple>
 
 #include <openssl/md5.h>
 
+#include "block_storage.hpp"
 #include "per_block_file_processor.hpp"
 #include "profile.hpp"
+#include "thread_pool.hpp"
 
+#define BYTES_IN_MB (1024 * 1024)
 #define DEFAULT_BLOCK_SIZE_MB 1
 
 void print_usage(const char* exec_name) {
@@ -55,13 +59,20 @@ single_block_processor make_single_block_processor_md5() {
   };
 }
 
+void make_signature(const std::string& input_path, const std::string& output_path, std::size_t block_size_mb, single_block_processor block_processor) {
+  std::size_t block_size_bytes = block_size_mb * BYTES_IN_MB;
+  std::size_t num_blocks = std::thread::hardware_concurrency();
+  std::unique_ptr<IBlockStorage> block_storage_ptr = std::make_unique<BlockStorage>(num_blocks, block_size_bytes);
+  PerBlockFileProcessor signature_maker(input_path, block_size_bytes, block_storage_ptr.get());
+  signature_maker.ProcessFile<ThreadPool>(output_path, block_processor);
+}
+
 int main(int argc, char** argv) {
   try {
     auto [input_path, output_path, block_size_mb] = get_cmd_arguments(argc, argv);
     {
       LOG_DURATION("making a signature");
-      PerBlockFileProcessor signature_maker(input_path, block_size_mb);
-      signature_maker.ProcessFile(output_path, make_single_block_processor_md5());
+      make_signature(input_path, output_path, block_size_mb, make_single_block_processor_md5());
     }
   } catch (const std::invalid_argument& e) {
     std::cout << e.what() << std::endl << std::endl;

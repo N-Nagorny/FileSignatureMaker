@@ -5,10 +5,12 @@
 #include <vector>
 #include <queue>
 
+#include "interface_block_storage.hpp"
+
 // BlockStorage allocates
 // num_blocks cells which
 // may hold a block or nothing
-class BlockStorage {
+class BlockStorage : public IBlockStorage {
 public:
   explicit BlockStorage(
     std::size_t num_blocks,
@@ -23,12 +25,12 @@ public:
     }
   }
 
-  virtual ~BlockStorage() {};
+  virtual ~BlockStorage() = default;
 
-  const std::vector<unsigned char>& GetBlock(std::size_t index) const;
-  std::size_t GetFreeCells() const;
-  bool ReadBlock(std::istream& input_stream, std::size_t index);
-  void FreeBlock(std::size_t index);
+  const std::vector<unsigned char>& GetBlock(std::size_t index) const override;
+  std::size_t GetFreeCells() const override;
+  bool ReadBlock(std::istream& input_stream, std::size_t index) override;
+  void FreeBlock(std::size_t index) override;
 
 private:
   BlockStorage(const BlockStorage&) =

@@ -59,16 +59,14 @@ private:
   ThreadPool& operator=(const ThreadPool&) =
     delete;  // non copyable
 
-  class BaseJob {
-  private:
-    std::packaged_task<void()> function_;
+  class IJob {
   public:
-    virtual ~BaseJob() {};
+    virtual ~IJob() {};
     virtual void execute() = 0;
   };
 
   template<typename RetType>
-  class Job : public BaseJob {
+  class Job : public IJob {
   private:
     std::packaged_task<RetType()> function_;
   public:
@@ -81,7 +79,7 @@ private:
   };
 
   std::vector<std::thread> threads_;
-  std::queue<std::unique_ptr<BaseJob>> jobs_;
+  std::queue<std::unique_ptr<IJob>> jobs_;
   mutable std::mutex mutex_; // for both jobs_ and shutdown_
   mutable std::condition_variable action_for_worker_; // notifies worker about action to do
   mutable std::condition_variable queue_is_not_full_;
